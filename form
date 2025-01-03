@@ -1,0 +1,196 @@
+//SignUp.java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class SignUp extends JFrame {
+//private final int FRAME_WIDTH = 500;
+//private final int FRAME_HEIGHT = 500;
+
+
+JLabel signupTiltle,nameLabel,emailLabel,GenderLabel,passwordLabel;
+JTextField nameField,emailField;
+JPasswordField passwordField;
+JRadioButton maleRadioButton,femaleRadioButton;
+JCheckBox checkBox;
+JButton signupBtn;
+ButtonGroup genderButtonGroup;
+
+public SignUp(){
+    setSize(490,560);
+    setTitle("Sign Up Form");
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setLocationRelativeTo(null);// Center the frame
+    setResizable(false);
+
+    Container c = getContentPane();
+    c.setLayout(null);
+    c.setBackground(Color.WHITE);
+
+    // Add "Sign Up" title to the panel
+    signupTiltle = new JLabel("Sign Up");
+    signupTiltle.setBounds(180,20,480,60);
+    signupTiltle.setFont(new Font("Arial",Font.BOLD,30));
+    signupTiltle.setForeground(Color.BLUE);
+
+    c.add(signupTiltle);
+
+    //SignUp Form components
+    nameLabel = new JLabel("Name ");
+    nameLabel.setBounds(30,90,100,30);
+    nameLabel.setFont(new Font("Arial",Font.BOLD,20));
+
+    c.add(nameLabel);
+
+    nameField = new JTextField();
+    nameField.setBounds(145,90,260,30);
+
+    c.add(nameField);
+
+    emailLabel = new JLabel("Email ");
+    emailLabel.setBounds(30,140,100,30);
+    emailLabel.setFont(new Font("Arial",Font.BOLD,20));
+
+    c.add(emailLabel);
+
+    emailField = new JTextField();
+    emailField.setBounds(145,140,260,30);
+
+    c.add(emailField);
+
+    GenderLabel = new JLabel("Gender ");
+    GenderLabel.setBounds(30,200,100,30);
+    GenderLabel.setFont(new Font("Arial",Font.BOLD,20));
+
+    c.add(GenderLabel);
+
+    maleRadioButton = new JRadioButton("Male");
+    maleRadioButton.setBounds(180,200,100,30);
+    maleRadioButton.setFont(new Font("Arial",Font.BOLD,18));
+    maleRadioButton.setBackground(Color.WHITE);
+//  maleRadioButton.setBorder(null);
+    maleRadioButton.setFocusPainted(false);
+    maleRadioButton.setSelected(true);
+    c.add(maleRadioButton);
+
+    femaleRadioButton = new JRadioButton("Female");
+    femaleRadioButton.setBounds(280,200,100,30);
+    femaleRadioButton.setFont(new Font("Arial",Font.BOLD,18));
+    femaleRadioButton.setBackground(Color.WHITE);
+//  femaleRadioButton.setBorder(null);
+    femaleRadioButton.setFocusPainted(false);
+    femaleRadioButton.setSelected(false);
+
+    c.add(femaleRadioButton);
+
+    genderButtonGroup = new ButtonGroup();
+    genderButtonGroup.add(maleRadioButton);
+    genderButtonGroup.add(femaleRadioButton);
+
+    passwordLabel = new JLabel("Password");
+    passwordLabel.setBounds(30,250,100,30);
+    passwordLabel.setFont(new Font("Arial",Font.BOLD,20));
+
+    c.add(passwordLabel);
+
+    passwordField = new JPasswordField(" Oop@123");
+    passwordField.setBounds(145,250,260,30);
+
+    c.add(passwordField);
+
+    checkBox = new JCheckBox(" I am not a Robot.");
+    checkBox.setBounds(35,310,250,30);
+    checkBox.setFont(new Font("Arial",Font.BOLD,15));
+    checkBox.setBackground(Color.white);
+    checkBox.setFocusPainted(false);
+
+    c.add(checkBox);
+
+    signupBtn = new JButton(" Sign Up ");
+    signupBtn.setBounds(30,400,380,40);
+    signupBtn.setFont(new Font("Arial",Font.BOLD,20));
+    signupBtn.setBackground(Color.BLUE);
+    signupBtn.setForeground(Color.WHITE);
+    signupBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    signupBtn.setFocusPainted(false);
+
+    c.add(signupBtn);
+
+//actionListners
+    signupBtn.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Get data from fields
+            String name = nameField.getText().trim();
+            String email = emailField.getText().trim();
+            String gender = maleRadioButton.isSelected() ? "Male" : "Female";
+            String password = new String(passwordField.getPassword()).trim();
+
+            if (!checkBox.isSelected()){
+                JOptionPane.showMessageDialog(null,"Please Confirm You are not a Robot");
+            return;
+            }
+            // Create an instance of the JDBC class and register the user
+            JDBC jdbc = new JDBC();
+            boolean result = jdbc.registerUser(name, email, gender, password);
+
+            if (result) {
+                JOptionPane.showMessageDialog(null, "Registration Successful!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Registration Failed. Try again.");
+            }
+        }
+    });
+
+ }
+}
+
+
+
+//JDBC.java
+import java.sql.*;
+
+public class JDBC {
+
+    private static final String URL = "jdbc:mysql://localhost:3307/Users";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+    // Static method to get the database connection
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    public boolean registerUser(String name, String email, String gender, String password) {
+        String query = "INSERT INTO users (name, email, gender, password) VALUES (?, ?, ?, ?)";
+        try (Connection conn = JDBC.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            // Set parameters for the SQL query
+            pstmt.setString(1, name);
+            pstmt.setString(2, email);
+            pstmt.setString(3, gender);
+            pstmt.setString(4, password);
+
+            // Execute the update (insert)
+            pstmt.executeUpdate();
+            return true;  // Registration successful
+        } catch (SQLException e) {
+            e.printStackTrace();  // Print the exception if it occurs
+        }
+        return false;  // Registration failed
+    }
+
+}
+
+//Main.java
+public class Main{
+    public static void main(String[] args) {
+        
+        SignUp signUp = new SignUp();
+        signUp.setVisible(true);
+
+    }
+}
+
