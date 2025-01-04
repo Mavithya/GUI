@@ -1,0 +1,232 @@
+//SignIn.java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+public class SignIn extends JFrame {
+
+    JLabel slabel,elabel,glabel,plabel,dlabel;
+    JTextField nfield,efield;
+    JPasswordField pfield;
+    JRadioButton mbtn,fbtn;
+    JCheckBox checkBox;
+    JButton signbtn;
+    JComboBox<String> daybox,monbox,yearbox;
+
+    public SignIn(){
+        setSize(450,600);
+        setTitle("SignUp Form");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        Container c =getContentPane();
+        c.setLayout(null);
+
+        slabel= new JLabel("Sign Up");
+        slabel.setBounds(150,20,200,60);
+        slabel.setFont(new Font("Arial",Font.BOLD,35));
+        slabel.setForeground(Color.BLUE);
+
+        c.add(slabel);
+
+        elabel = new JLabel("Name");
+        elabel.setBounds(30,100,150,30);
+        elabel.setFont(new Font("Arial",Font.BOLD,20));
+
+        c.add(elabel);
+
+        nfield = new JTextField();
+        nfield.setBounds(150,100,250,30);
+
+        c.add(nfield);
+
+        elabel = new JLabel("Email");
+        elabel.setBounds(30,150,150,30);
+        elabel.setFont(new Font("Arial",Font.BOLD,20));
+
+        c.add(elabel);
+
+        efield = new JTextField();
+        efield.setBounds(150,150,250,30);
+
+        c.add(efield);
+
+        glabel = new JLabel("Name");
+        glabel.setBounds(30,200,150,30);
+        glabel.setFont(new Font("Arial",Font.BOLD,20));
+
+        c.add(glabel);
+
+        mbtn = new JRadioButton("Male");
+        mbtn.setBounds(150,200,150,30);
+        mbtn.setFont(new Font("Arial",Font.BOLD,20));
+        mbtn.setSelected(true);
+        mbtn.setFocusPainted(false);
+
+        c.add(mbtn);
+
+        fbtn = new JRadioButton("Female");
+        fbtn.setBounds(300,200,150,30);
+        fbtn.setFont(new Font("Arial",Font.BOLD,20));
+        fbtn.setSelected(false);
+        fbtn.setFocusPainted(false);
+
+        c.add(fbtn);
+
+        ButtonGroup btngrp = new ButtonGroup();
+        btngrp.add(mbtn);
+        btngrp.add(fbtn);
+
+        plabel = new JLabel("Password");
+        plabel.setBounds(30,250,150,30);
+        plabel.setFont(new Font("Arial",Font.BOLD,20));
+
+        c.add(plabel);
+
+        pfield = new JPasswordField();
+        pfield.setBounds(150,250,250,30);
+
+        c.add(pfield);
+
+        dlabel = new JLabel("DOB");
+        dlabel.setBounds(30,300,150,30);
+        dlabel.setFont(new Font("Arial",Font.BOLD,20));
+
+        c.add(dlabel);
+        String[] day = {"1","2","3"};
+        daybox = new JComboBox<>(day);
+        daybox.setBounds(150,300,50,30);
+        daybox.setFont(new Font("Arial",Font.BOLD,15));
+
+        c.add(daybox);
+
+        String[] month = {"1","2","3"};
+        monbox = new JComboBox<>(month);
+        monbox.setBounds(200,300,100,30);
+        monbox.setFont(new Font("Arial",Font.BOLD,15));
+
+        c.add(monbox);
+
+        String[] year = {"1","2","3"};
+        yearbox = new JComboBox<>(year);
+        yearbox.setBounds(300,300,100,30);
+        yearbox.setFont(new Font("Arial",Font.BOLD,15));
+
+        c.add(yearbox);
+
+
+
+
+
+
+        checkBox =  new JCheckBox("I am not a Robot");
+        checkBox.setFont(new Font("Arial",Font.BOLD,15));
+        checkBox.setFocusPainted(false);
+        checkBox.setBounds(30,400,200,30);
+
+        c.add(checkBox);
+
+        signbtn = new JButton("Sign Up");
+        signbtn.setBounds(75,500,300,40);
+        signbtn.setFont(new Font("Arial",Font.BOLD,20));
+        signbtn.setFocusPainted(false);
+        signbtn.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
+        signbtn.setBackground(Color.BLUE);
+        signbtn.setForeground(Color.WHITE);
+
+        c.add(signbtn);
+
+        signbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nfield.getText().trim();
+                String email = efield.getText().trim();
+                String gender = mbtn.isSelected() ? "Male" : "Female";
+                String password = new String(pfield.getPassword()).trim();
+                String day = (String)daybox.getSelectedItem();
+                String month = (String)monbox.getSelectedItem();
+                String year = (String)yearbox.getSelectedItem();
+
+                if (!checkBox.isSelected()){
+                    JOptionPane.showMessageDialog(null,"Verify You are not a Robot");
+                    return;
+                }
+
+                String dateString = month + "/" + day + "/" + year;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                java.util.Date utilDate = null;
+                try {
+                    utilDate = formatter.parse(dateString);
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Invalid Date Format");
+                    return;
+                }
+
+                // Convert java.util.Date to java.sql.Date
+                java.sql.Date birthdate = new java.sql.Date(utilDate.getTime());
+
+                JDBC jdbc = new JDBC();
+               boolean result = jdbc.registerUser(name,email,gender,password,birthdate);
+
+               if (result){
+                   JOptionPane.showMessageDialog(null,"Registartion Succcessful");
+               }else {
+                   JOptionPane.showMessageDialog(null,"Registartion UnSucccessful");
+
+               }
+
+
+            }
+        });
+
+
+    }
+
+
+
+    public static void main(String[] args) {
+        SignIn signin = new SignIn();
+        signin.setVisible(true);
+
+    }
+}
+
+//JDBC.java
+import java.sql.*;
+
+public class JDBC {
+    private static final String URL = "jdbc:mysql://localhost:3307/Users";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    public boolean registerUser(String name, String email, String gender, String password, java.sql.Date birthdate) {
+        String query = "INSERT INTO users (Name, Email, Gender, Password, DOB) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection con = JDBC.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+
+            pstmt.setString(1, name);
+            pstmt.setString(2, email);
+            pstmt.setString(3, gender);
+            pstmt.setString(4, password);
+            pstmt.setDate(5, birthdate);
+
+            pstmt.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+}
